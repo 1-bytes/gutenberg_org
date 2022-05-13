@@ -32,17 +32,3 @@ func DisableEscapeHtml(data interface{}) (string, error) {
 	}
 	return bf.String(), nil
 }
-
-//func EnableEscapeHtml(data string) (string, error) {
-//	jsonDecoder := json.NewDecoder(bytes.NewReader([]byte(data))).Decode()
-//	for {
-//		err := jsonDecoder.Decode(&data)
-//		if err != nil {
-//			return "", err
-//		}
-//		if err == io.EOF {
-//			break
-//		}
-//	}
-//	return data.(string), nil
-//}
