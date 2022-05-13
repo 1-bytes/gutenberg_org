@@ -1,4 +1,4 @@
-project_name: bbc_com
+project_name: gutenberg_org
 
 before:
   hooks:
