@@ -70,19 +70,19 @@ func (p *Parser) coverImage() (string, error) {
 	return id + ".jpg", nil
 }
 
-// content 文章内容
+// content 图书内容
 func (p *Parser) content() (string, error) {
 	contentURL := p.regexpMatch(contentURLRe, 1, p.response)
 	if contentURL == "" {
-		return "", fmt.Errorf("article url not found")
+		return "", fmt.Errorf("books url not found")
 	}
 	bytes, err := fetcher.Fetch(contentURL)
 	if err != nil {
-		return "", fmt.Errorf("fetch article content failed: %s", err)
+		return "", fmt.Errorf("fetch books content failed: %s", err)
 	}
 	c := p.regexpMatch(contentRe, 2, bytes)
 	if c == "" {
-		return "", fmt.Errorf("article content not found")
+		return "", fmt.Errorf("books content not found")
 	}
 	return c, nil
 }
