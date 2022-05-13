@@ -2,8 +2,12 @@ package parser
 
 import (
 	"bbc_com/pkg/downloader"
+	"bbc_com/pkg/fetcher"
+	"fmt"
+	"log"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 var content string
@@ -16,83 +20,78 @@ type Parser struct {
 	ReleaseDate   string
 	DownloadCount int
 	CoverImage    string
-	response      string
+	Content       string
+	response      []byte
 }
 
-var authorRe = regexp.MustCompile(`<a href="/ebooks/author[^>]*?">([^<]*?)</a></td>`)
-var titleRe = regexp.MustCompile(`<meta name="title" content="([^"]*?)">`)
-var languageRe = regexp.MustCompile(`<th>Language</th>\s<td>(<a href=[^>]*?>)?([^<]*?)(</a>)?</td>`)
-var releaseDateRe = regexp.MustCompile(`<th>Release Date</th>\s<td[^>]*?>([^<]*?)</td>`)
-var downloadCountRe = regexp.MustCompile(`<td itemprop="interactionCount">(\d*?) downloads in`)
-var coverImageRe = regexp.MustCompile(`<img class="cover-art" src="([^"]*?)"\s`)
+var (
+	authorRe        = regexp.MustCompile(`<a href="/ebooks/author[^>]*?">([^<]*?)</a></td>`)
+	titleRe         = regexp.MustCompile(`<meta name="title" content="([^"]*?)">`)
+	languageRe      = regexp.MustCompile(`<th>Language</th>\s<td>(<a href=[^>]*?>)?([^<]*?)(</a>)?</td>`)
+	releaseDateRe   = regexp.MustCompile(`<th>Release Date</th>\s<td[^>]*?>([^<]*?)</td>`)
+	downloadCountRe = regexp.MustCompile(`<td itemprop="interactionCount">(\d*?) downloads in`)
+	coverImageRe    = regexp.MustCompile(`<img class="cover-art" src="([^"]*?)"\s`)
+	contentURLRe    = regexp.MustCompile(`<td class="noscreen">([^<]*?.utf-8)</td>`)
+	contentRe       = regexp.MustCompile(
+		`\*\*\*\sSTART\sOF\s(THE|THIS)\sPROJECT.+\*\*\*([\s\S]+)\*\*\*\sEND\sOF\s(THE|THIS)\sPROJECT.+\*\*\*`)
+)
 
-func (p *Parser) GetDetail(resp string) {
+func (p *Parser) GetDetail(resp []byte) {
 	p.response = resp
-	p.Author = p.author()
-	p.Title = p.title()
-	p.Language = p.language()
-	p.ReleaseDate = p.releaseDate()
+	var err error
+	p.Author = p.regexpMatch(authorRe, 1, p.response)
+	p.Title = p.regexpMatch(titleRe, 1, p.response)
+	p.Language = p.regexpMatch(languageRe, 1, p.response)
+	p.ReleaseDate = p.regexpMatch(releaseDateRe, 1, p.response)
 	p.DownloadCount = p.downloadCount()
-	p.CoverImage = p.coverImage()
-}
-
-// author 作者信息
-func (p *Parser) author() string {
-	match := authorRe.FindStringSubmatch(p.response)
-	if len(match) > 0 {
-		return match[1]
+	if p.CoverImage, err = p.coverImage(); err != nil {
+		log.Println(err)
 	}
-	return ""
-}
-
-// title 标题
-func (p *Parser) title() string {
-	match := titleRe.FindStringSubmatch(p.response)
-	if len(match) > 0 {
-		return match[1]
+	if p.Content, err = p.content(); err != nil {
+		log.Println(err)
 	}
-	return ""
-}
-
-// language 语言
-func (p *Parser) language() string {
-	match := languageRe.FindStringSubmatch(p.response)
-	if len(match) > 0 {
-		return match[2]
-	}
-	return ""
-}
-
-// releaseDate 发布日期
-func (p *Parser) releaseDate() string {
-	match := releaseDateRe.FindStringSubmatch(p.response)
-	if len(match) > 0 {
-		return match[1]
-	}
-	return ""
 }
 
 // downloadCount 获取下载次数
 func (p *Parser) downloadCount() int {
-	match := downloadCountRe.FindStringSubmatch(p.response)
-	if len(match) > 0 {
-		c, err := strconv.Atoi(match[1])
-		if err == nil {
-			return c
-		}
-	}
-	return 0
+	c, _ := strconv.Atoi(p.regexpMatch(downloadCountRe, 1, p.response))
+	return c
 }
 
-// releaseDate 发布日期
-func (p *Parser) coverImage() string {
-	coverMatch := coverImageRe.FindStringSubmatch(p.response)
-	if len(coverMatch) > 0 {
-		idRe := regexp.MustCompile(`/epub/([^/]*?)/`)
-		idMatch := idRe.FindStringSubmatch(coverMatch[1])
-		id := idMatch[1]
-		downloader.DownloadImage(coverMatch[1], "files/cover_image/"+id+".jpg")
-		return id + ".jpg"
+// coverImage 封面图片
+func (p *Parser) coverImage() (string, error) {
+	idRe := regexp.MustCompile(`/epub/([^/]*?)/`)
+	cover := p.regexpMatch(coverImageRe, 1, p.response)
+	id := p.regexpMatch(idRe, 1, []byte(cover))
+	err := downloader.DownloadImage(cover, "files/cover_image/"+id+".jpg")
+	if err != nil {
+		return "", fmt.Errorf("download cover image failed: %s", err)
+	}
+	return id + ".jpg", nil
+}
+
+// content 文章内容
+func (p *Parser) content() (string, error) {
+	contentURL := p.regexpMatch(contentURLRe, 1, p.response)
+	if contentURL == "" {
+		return "", fmt.Errorf("article url not found")
+	}
+	bytes, err := fetcher.Fetch(contentURL)
+	if err != nil {
+		return "", fmt.Errorf("fetch article content failed: %s", err)
+	}
+	c := p.regexpMatch(contentRe, 2, bytes)
+	if c == "" {
+		return "", fmt.Errorf("article content not found")
+	}
+	return c, nil
+}
+
+// regexpMatch 通用正则匹配方法
+func (p *Parser) regexpMatch(re *regexp.Regexp, index int, content []byte) string {
+	match := re.FindSubmatch(content)
+	if len(match) > index {
+		return strings.TrimSpace(string(match[index]))
 	}
 	return ""
 }

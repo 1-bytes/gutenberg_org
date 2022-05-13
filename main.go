@@ -11,7 +11,7 @@ import (
 func main() {
 	baseU := "https://www.gutenberg.org/ebooks/"
 	//for i := 1; i < 68100; i++ {
-	for i := 67998; i < 68000; i++ {
+	for i := 67998; i < 67999; i++ {
 		u := baseU + strconv.Itoa(i)
 		fmt.Printf("request url: %s\n", u)
 		bytes, err := fetcher.Fetch(u)
@@ -20,7 +20,7 @@ func main() {
 			continue
 		}
 		p := parser.Parser{}
-		p.GetDetail(string(bytes))
+		p.GetDetail(bytes)
 
 		fmt.Println(p.Title)
 		fmt.Println(p.Author)
@@ -28,6 +28,7 @@ func main() {
 		fmt.Println(p.ReleaseDate)
 		fmt.Println(p.DownloadCount)
 		fmt.Println(p.CoverImage)
+		fmt.Println(p.Content)
 		fmt.Println("\n")
 	}
 }
