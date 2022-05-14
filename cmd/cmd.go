@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-func SavaData(bookDetail *parser.Parser) {
+func SavaData(bookDetail parser.Parser) {
 	db := bootstrap.DB
 	splitParagraphs := SplitParagraph(&bookDetail.Content)
 	// 存储至 MySQL
@@ -51,7 +51,7 @@ func SavaData(bookDetail *parser.Parser) {
 
 		client := elastic.GetInstance().Index()
 		do, err := client.
-			Index("dict_article").
+			Index("dict_article_test").
 			BodyJson(string(dataJson)).
 			Timeout("10s").
 			Do(context.Background())

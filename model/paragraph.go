@@ -19,7 +19,7 @@ type DictArticleParagraph struct {
 
 // TableName 获取表名
 func (m *DictArticleParagraph) TableName() string {
-	return "dict_article_paragraph"
+	return "dict_article_paragraph_test"
 }
 
 // BatchCreate 批量插入数据

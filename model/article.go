@@ -17,5 +17,5 @@ type DictArticle struct {
 }
 
 func (m *DictArticle) TableName() string {
-	return "dict_article"
+	return "dict_article_test"
 }

@@ -64,10 +64,13 @@ func (p *Parser) downloadCount() int {
 func (p *Parser) coverImage() (string, error) {
 	idRe := regexp.MustCompile(`/epub/([^/]*?)/`)
 	cover := p.regexpMatch(coverImageRe, 1, p.response)
+	if cover == "" {
+		return "", fmt.Errorf("cover image not found, url: %s\n", p.URL)
+	}
 	id := p.regexpMatch(idRe, 1, []byte(cover))
 	err := downloader.DownloadImage(cover, "files/cover_image/"+id+".jpg")
 	if err != nil {
-		return "", fmt.Errorf("download cover image failed: %s", err)
+		return "", fmt.Errorf("download cover image failed: %s\n", err)
 	}
 	return id + ".jpg", nil
 }

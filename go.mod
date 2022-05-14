@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/olivere/elastic/v7 v7.0.32
+	github.com/panjf2000/ants/v2 v2.5.0
 	github.com/spf13/cast v1.4.1
 	github.com/spf13/viper v1.11.0
 	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4
