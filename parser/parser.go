@@ -32,7 +32,7 @@ var (
 	releaseDateRe   = regexp.MustCompile(`<th>Release Date</th>\s<td[^>]*?>([^<]*?)</td>`)
 	downloadCountRe = regexp.MustCompile(`<td itemprop="interactionCount">(\d*?) downloads in`)
 	coverImageRe    = regexp.MustCompile(`<img class="cover-art" src="([^"]*?)"\s`)
-	contentURLRe    = regexp.MustCompile(`<td class="noscreen">([^<]*?.utf-8)</td>`)
+	contentURLRe    = regexp.MustCompile(`<a href="([^"]*?)" type="text/plain`)
 	contentRe       = regexp.MustCompile(
 		`\*\*\*\sSTART\sOF\s(THE|THIS)\sPROJECT.+\*\*\*([\s\S]+)\*\*\*\sEND\sOF\s(THE|THIS)\sPROJECT.+\*\*\*`)
 )
@@ -81,6 +81,7 @@ func (p *Parser) content() (string, error) {
 	if contentURL == "" {
 		return "", fmt.Errorf("books url not found")
 	}
+	contentURL = "https://www.gutenberg.org" + contentURL
 	bytes, err := fetcher.Fetch(contentURL)
 	if err != nil {
 		return "", fmt.Errorf("fetch books content failed: %s", err)
