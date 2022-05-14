@@ -13,8 +13,7 @@ import (
 func main() {
 	bootstrap.Setup()
 	baseU := "https://www.gutenberg.org/ebooks/"
-	//for i := 1; i < 68100; i++ {
-	for i := 8; i < 9; i++ {
+	for i := 1; i < 68100; i++ {
 		u := baseU + strconv.Itoa(i)
 		fmt.Printf("request url: %s\n", u)
 		resp, err := fetcher.Fetch(u)

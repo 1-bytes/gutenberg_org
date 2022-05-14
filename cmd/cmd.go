@@ -51,7 +51,7 @@ func SavaData(bookDetail *parser.Parser) {
 
 		client := elastic.GetInstance().Index()
 		do, err := client.
-			Index("dict_article_test").
+			Index("dict_article").
 			BodyJson(string(dataJson)).
 			Timeout("10s").
 			Do(context.Background())
@@ -63,7 +63,7 @@ func SavaData(bookDetail *parser.Parser) {
 		articleParagraph := model.DictArticleParagraph{
 			ElasticID:     do.Id,
 			ArticleID:     articleID,
-			ByteCount:     articleModel.DownloadCount,
+			ByteCount:     len(paragraph),
 			Fre:           "",
 			Fkgl:          "",
 			SchoolLvClass: 0,

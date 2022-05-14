@@ -9,17 +9,17 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"net/url"
 )
 
 // Fetch 用于获取网页内容
 func Fetch(u string) ([]byte, error) {
 	// HTTP 代理
-	proxy := func(_ *http.Request) (*url.URL, error) {
-		return url.Parse("http://127.0.0.1:1080")
-	}
-	transport := &http.Transport{Proxy: proxy}
-	client := &http.Client{Transport: transport}
+	//proxy := func(_ *http.Request) (*url.URL, error) {
+	//	return url.Parse("http://127.0.0.1:1080")
+	//}
+	//transport := &http.Transport{Proxy: proxy}
+	//client := &http.Client{Transport: transport}
+	client := &http.Client{}
 	request, err := http.NewRequest(http.MethodGet, u, nil)
 	if err != nil {
 		return nil, err
