@@ -1,4 +1,4 @@
-module bbc_com
+module spider
 
 go 1.18
 

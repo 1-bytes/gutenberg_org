@@ -1,13 +1,13 @@
 package bootstrap
 
 import (
-	"bbc_com/pkg/config"
 	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"log"
 	"os"
+	"spider/pkg/config"
 	"time"
 )
 

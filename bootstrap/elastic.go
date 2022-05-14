@@ -1,9 +1,9 @@
 package bootstrap
 
 import (
-	"bbc_com/pkg/config"
-	pkgelastic "bbc_com/pkg/elastic"
 	"github.com/olivere/elastic/v7"
+	"spider/pkg/config"
+	pkgelastic "spider/pkg/elastic"
 	"time"
 )
 

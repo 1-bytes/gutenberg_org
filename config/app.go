@@ -1,6 +1,6 @@
 package config
 
-import "bbc_com/pkg/config"
+import "spider/pkg/config"
 
 func init() {
 	config.Add("spider", config.StrMap{

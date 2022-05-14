@@ -1,10 +1,12 @@
 package main
 
 import (
-	"bbc_com/parser"
-	"bbc_com/pkg/fetcher"
 	"fmt"
 	"log"
+	"spider/bootstrap"
+	"spider/cmd"
+	"spider/parser"
+	"spider/pkg/fetcher"
 	"strconv"
 )
 

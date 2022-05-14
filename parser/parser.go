@@ -1,11 +1,11 @@
 package parser
 
 import (
-	"bbc_com/pkg/downloader"
-	"bbc_com/pkg/fetcher"
 	"fmt"
 	"log"
 	"regexp"
+	"spider/pkg/downloader"
+	"spider/pkg/fetcher"
 	"strconv"
 	"strings"
 )
@@ -13,6 +13,7 @@ import (
 var content string
 
 type Parser struct {
+	URL           string
 	ID            string
 	Author        string
 	Title         string
@@ -36,9 +37,10 @@ var (
 		`\*\*\*\sSTART\sOF\s(THE|THIS)\sPROJECT.+\*\*\*([\s\S]+)\*\*\*\sEND\sOF\s(THE|THIS)\sPROJECT.+\*\*\*`)
 )
 
-func (p *Parser) GetDetail(resp []byte) {
+func (p *Parser) GetDetail(url string, resp []byte) {
 	p.response = resp
 	var err error
+	p.URL = url
 	p.Author = p.regexpMatch(authorRe, 1, p.response)
 	p.Title = p.regexpMatch(titleRe, 1, p.response)
 	p.Language = p.regexpMatch(languageRe, 1, p.response)
